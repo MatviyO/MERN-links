@@ -1,22 +1,33 @@
-import React, {useCallback, useContext, useState} from 'react'
+import React, {useCallback, useContext, useEffect, useState} from 'react'
 import {useHttp} from "../hooks/http.hook";
 import {AuthContext} from "../context/Auth.context";
+import {Loader} from "../components/Loader";
+import {LinksList} from "../components/LinksList";
 
 export const LinksPage = () => {
     const [links, setLinks] = useState([])
     const {loading, request} = useHttp()
     const {token} = useContext(AuthContext)
-    const fetchLinks = useCallback( async () => {
+    const fetchLinks = useCallback(async () => {
         try {
-            const fetched = await request('/api/link', 'GET', null , {
+            const fetched = await request('/api/link', 'GET', null, {
                 Authorization: `Bearer ${token}`
             })
             setLinks(fetched)
-        } catch (e) {}
-    }, [token, request] )
-    
+        } catch (e) {
+        }
+    }, [token, request])
 
+    useEffect(() => {
+        fetchLinks()
+    }, [fetchLinks])
+
+    if (loading) {
+        return <Loader/>
+    }
     return (
-        <h1>Links Page</h1>
+        <>
+            {!loading && <LinksList links={links} /> }
+        </>
     )
 }
